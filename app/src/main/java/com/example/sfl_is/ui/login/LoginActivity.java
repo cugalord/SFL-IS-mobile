@@ -5,6 +5,7 @@ import android.app.Activity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -22,10 +23,12 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.sfl_is.Common;
 import com.example.sfl_is.R;
-import com.example.sfl_is.ui.login.LoginViewModel;
-import com.example.sfl_is.ui.login.LoginViewModelFactory;
 import com.example.sfl_is.databinding.ActivityLoginBinding;
+import com.example.sfl_is.ui.employee.EmployeeActivity;
+import com.example.sfl_is.ui.manager.ManagerActivity;
+import com.example.sfl_is.ui.manager.employees.WarehouseActivity;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -108,7 +111,8 @@ public class LoginActivity extends AppCompatActivity {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     loginViewModel.login(usernameEditText.getText().toString(),
-                            passwordEditText.getText().toString());
+                            passwordEditText.getText().toString(),
+                            getApplicationContext());
                 }
                 return false;
             }
@@ -119,18 +123,40 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 loadingProgressBar.setVisibility(View.VISIBLE);
                 loginViewModel.login(usernameEditText.getText().toString(),
-                        passwordEditText.getText().toString());
+                        passwordEditText.getText().toString(),
+                        getApplicationContext());
             }
         });
     }
 
     private void updateUiWithUser(LoggedInUserView model) {
-        String welcome = getString(R.string.welcome) + model.getDisplayName();
-        // TODO : initiate successful logged in experience
+        String welcome = getString(R.string.welcome) + " " + model.getDisplayName();
         Toast.makeText(getApplicationContext(), welcome, Toast.LENGTH_LONG).show();
+
+        if (!Common.allowedRoles.contains(model.getRole())) {
+            Toast.makeText(getApplicationContext(), "Role not supported!", Toast.LENGTH_SHORT).show();
+            Intent i = new Intent(LoginActivity.this, LoginActivity.class);
+            startActivity(i);
+            this.finish();
+        }
+
+        Intent i = null;
+        if (model.getRole().equals("Warehouse manager")) {
+            i = new Intent(LoginActivity.this, ManagerActivity.class);
+        }
+        else {
+            i = new Intent(LoginActivity.this, EmployeeActivity.class);
+        }
+        i.putExtra("username", model.getDisplayName());
+        i.putExtra("role", model.getRole());
+        startActivity(i);
+        this.finish();
     }
 
     private void showLoginFailed(@StringRes Integer errorString) {
         Toast.makeText(getApplicationContext(), errorString, Toast.LENGTH_SHORT).show();
+        Intent i = new Intent(LoginActivity.this, LoginActivity.class);
+        startActivity(i);
+        this.finish();
     }
 }

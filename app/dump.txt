@@ -1,0 +1,64 @@
+
+    private void setRole(Context context) {
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        executorService.submit(() -> {
+            requestQueue = Volley.newRequestQueue(context);
+            String filledUrl = url.replace("{username}", userId);
+
+            Log.i("EXEC_LOG", filledUrl);
+
+            JsonArrayRequest request = new JsonArrayRequest(filledUrl, jsonArrayListener, errorListener) {
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String, String> params = new HashMap<String, String>();
+                    params.put("ApiKey", apiKey);
+                    return params;
+                }
+            };
+
+            requestQueue.add(request);
+        });
+
+        if (!executorService.isTerminated()){
+            executorService.shutdown();
+            try {
+                if (executorService.awaitTermination(20, TimeUnit.SECONDS)){
+                    Log.i("EXEC_SERVICE", "Service terminated successfully.");
+                }
+                else {
+                    Log.i("EXEC_SERVICE", "Service terminated unsuccessfully.");
+                }
+            } catch (InterruptedException e) {
+                Log.e("VOLLEY_LOG", e.toString());
+            }
+        }
+    }
+
+    private Response.Listener<JSONArray> jsonArrayListener = new Response.Listener<JSONArray>() {
+        @Override
+        public void onResponse(JSONArray response) {
+            ArrayList<String> data = new ArrayList<>();
+
+            for (int i = 0; i < response.length(); i++) {
+                try {
+                    Log.i("VOLLEY_LOG", "Handling response");
+                    JSONObject object = response.getJSONObject(i);
+                    String roleID = object.getString("roleID");
+                    data.add(roleID);
+                    role = Common.roleIDToName.get(Integer.parseInt(roleID));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    return;
+                }
+            }
+
+            Log.i("LOG_VOLLEY", response.toString());
+        }
+    };
+
+    private Response.ErrorListener errorListener = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            Log.e("LOG_VOLLEY", error.toString());
+        }
+    };

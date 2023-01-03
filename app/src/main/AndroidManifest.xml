@@ -5,13 +5,12 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permissions.ACCESS_WIFI_STATE" />
-
-    <uses-permission android:name="android.permission.CAMERa"/>
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <uses-feature
         android:name="android.hardware.camera"
-        android:required="true"/>
-    <uses-feature android:name="android.hardware.camera.autofocus"/>
+        android:required="true" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
 
     <application
         android:allowBackup="true"
@@ -24,23 +23,21 @@
         android:theme="@style/Theme.SFLIS"
         tools:targetApi="31">
         <activity
-            android:name=".ui.manager.employees.jobs.JobsActivity"
-            android:exported="false"
-            android:label="@string/title_activity_jobs"
-            android:theme="@style/Theme.SFLIS.NoActionBar">
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
-        <activity
-            android:name=".ui.employee.EmployeeActivity"
+            android:name=".ui.scanner.ScannerActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
         <activity
-            android:name=".ui.manager.employees.EmployeeActivity"
+            android:name=".ui.manager.employees.WarehouseJobsActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
+            android:name=".ui.manager.employees.WarehouseActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
@@ -54,7 +51,7 @@
                 android:value="" />
         </activity>
         <activity
-            android:name=".ui.scanner.ScannerActivity"
+            android:name=".ui.employee.EmployeeActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
