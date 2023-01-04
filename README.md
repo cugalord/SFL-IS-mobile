@@ -22,7 +22,7 @@ The module structure is as follows:
    - The `ui/login/` folder contains the implementation of the login implementation of the app.
    - The `ui/employee/EmployeeActivity.java` file contains the list of jobs for a particular employee.
    - The `ui/manager/ManagerActivity.java` file contains the warehouse manager's create job action.
-   - The `ui/manager/employees/WarehouseActivity` file contains the list of employees working in the manager's warehouse. 
+   - The `ui/manager/employees/WarehouseActivity.java` file contains the list of employees working in the manager's warehouse. 
    - The `ui/scanner/ScannerActivity.java` file contains the implementation of a barcode scanner.
 
 ## 3. Building
