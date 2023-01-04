@@ -6,4 +6,64 @@
     android:layout_height="match_parent"
     tools:context=".ui.manager.employees.WarehouseActivity">
 
+    <ImageView
+        android:id="@+id/logoImageView"
+        android:layout_width="128dp"
+        android:layout_height="59dp"
+        android:layout_marginStart="18dp"
+        android:layout_marginTop="19dp"
+        android:src="@raw/logo"
+        android:contentDescription="LOGO"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:srcCompat="@tools:sample/avatars" />
+
+    <TextView
+        android:id="@+id/userTextView"
+        android:layout_width="129dp"
+        android:layout_height="58dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="16dp"
+        android:text="TextView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ScrollView
+        android:id="@+id/employeesView"
+        android:layout_width="410dp"
+        android:layout_height="568dp"
+        android:layout_marginTop="45dp"
+        android:layout_marginEnd="1dp"
+        android:layout_marginBottom="74dp"
+        android:contentDescription="@string/appbar_scrolling_view_behavior"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+        <LinearLayout
+            android:id="@+id/employeesLayout"
+            android:layout_width="410dp"
+            android:layout_height="568dp"
+            android:layout_marginTop="45dp"
+            android:layout_marginBottom="74dp"
+            android:contentDescription="@string/appbar_scrolling_view_behavior"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:orientation="vertical">
+        </LinearLayout>
+    </ScrollView>
+
+    <Button
+        android:id="@+id/buttonBack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="BACK"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/employeesView" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>
