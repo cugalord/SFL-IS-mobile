@@ -83,8 +83,11 @@ public class ScannerActivity extends AppCompatActivity {
     private String role = "";
 
     private RequestQueue requestQueue;
-    private String urlJobs = "https://sfl-dev.azurewebsites.net/api/v1/Jobs/{id}";
+    private String urlJobs = "https://sfl-dev.azurewebsites.net/api/v1/Jobs/{id}/{jobStatusID}";
     private String urlParcels = "https://sfl-dev.azurewebsites.net/api/v1/Parcels/{id}";
+
+    private String putResponseCode = "";
+    private String putRawData = "";
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -93,6 +96,8 @@ public class ScannerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_scanner);
 
         previewView = findViewById(R.id.previewView);
+
+        success = false;
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -242,6 +247,8 @@ public class ScannerActivity extends AppCompatActivity {
                 .addOnCompleteListener(task -> image.close());
     }
 
+    private boolean verifying = false;
+
     private void onSuccessListener(List<Barcode> barcodes) {
         if (barcodes.size() < 1) {
             return;
@@ -249,25 +256,25 @@ public class ScannerActivity extends AppCompatActivity {
 
         Toast.makeText(this, barcodes.get(0).getDisplayValue(), Toast.LENGTH_SHORT).show();
 
-        success = false;
-
         if (!barcodes.get(0).getDisplayValue().equals(parcelID)) {
             return;
         }
 
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        executorService.submit(this::verifyBarcodeValue);
-        if (!executorService.isTerminated()) {
-            executorService.shutdown();
-            try {
-                if (executorService.awaitTermination(20, TimeUnit.SECONDS)) {
-                    Toast.makeText(this, "Barcode scanning successful", Toast.LENGTH_SHORT).show();
+        if (!verifying) {
+            verifying = true;
+            ExecutorService executorService = Executors.newSingleThreadExecutor();
+            executorService.submit(this::verifyBarcodeValue);
+            if (!executorService.isTerminated()) {
+                executorService.shutdown();
+                try {
+                    if (executorService.awaitTermination(20, TimeUnit.SECONDS)) {
+                        Toast.makeText(this, "Barcode scanning successful", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(this, "Barcode scanning unsuccessful", Toast.LENGTH_SHORT).show();
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-                else {
-                    Toast.makeText(this, "Barcode scanning unsuccessful", Toast.LENGTH_SHORT).show();
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
             }
         }
 
@@ -283,11 +290,60 @@ public class ScannerActivity extends AppCompatActivity {
     }
 
     private void verifyBarcodeValue() {
-        requestQueue = Volley.newRequestQueue(getApplicationContext());
+        /*requestQueue = Volley.newRequestQueue(getApplicationContext());
         try {
             String filledUrlParcels = urlParcels.replace("{id}", username);
             JsonArrayRequest request = new JsonArrayRequest(filledUrlParcels, jsonArrayListenerParcels, errorListener);
             requestQueue.add(request);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }*/
+        requestQueue = Volley.newRequestQueue(getApplicationContext());
+        try {
+            JSONObject jsonBody = new JSONObject();
+            jsonBody.put("id", jobID);
+            jsonBody.put("jobStatusID", 2);
+            String filledUrlJobs = urlJobs.replace("{id}", jobID);
+            filledUrlJobs = filledUrlJobs.replace("{jobStatusID}", "2");
+
+            final String requestBody = jsonBody.toString();
+
+            StringRequest stringRequest = new StringRequest(
+                    Request.Method.PUT,
+                    filledUrlJobs,
+                    jsonArrayListenerJobs,
+                    errorListener) {
+                @Override
+                public String getBodyContentType() {
+                    return "application/json; charset=utf-8";
+                }
+
+                @Override
+                public byte[] getBody() {
+                    return requestBody == null ? null : requestBody.getBytes(StandardCharsets.UTF_8);
+                }
+
+                @Override
+                protected Response<String> parseNetworkResponse(NetworkResponse response) {
+                    if (response != null) {
+                        try {
+                            putRawData = new String(response.data, HttpHeaderParser.parseCharset(response.headers));
+                        } catch (UnsupportedEncodingException e) {
+                            putRawData = new String(response.data);
+                        }
+                        putResponseCode = String.valueOf(response.statusCode);
+                    }
+                    return Response.success(putResponseCode, HttpHeaderParser.parseCacheHeaders(response));
+                }
+
+                @Override
+                protected VolleyError parseNetworkError(VolleyError volleyError) {
+                    putResponseCode = "403";
+                    Log.e("LOG_VOLLEY", volleyError.toString());
+                    return volleyError;
+                }
+            };
+            requestQueue.add(stringRequest);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -297,20 +353,12 @@ public class ScannerActivity extends AppCompatActivity {
         @Override
         public void onResponse(JSONArray response) {
             success = true;
-
-            // TODO: Add put request
-            /*try {
-                String filledUrlJobs = urlJobs.replace("{id}", jobID);
-                JsonArrayRequest request = new JsonArrayRequest(filledUrlJobs, jsonArrayListenerJobs, errorListener);
-                requestQueue.add(request);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }*/
             try {
                 JSONObject jsonBody = new JSONObject();
                 jsonBody.put("id", jobID);
                 jsonBody.put("jobStatusID", 2);
                 String filledUrlJobs = urlJobs.replace("{id}", jobID);
+                filledUrlJobs = filledUrlJobs.replace("{jobStatusID}", "2");
 
                 final String requestBody = jsonBody.toString();
 
@@ -333,34 +381,35 @@ public class ScannerActivity extends AppCompatActivity {
                     protected Response<String> parseNetworkResponse(NetworkResponse response) {
                         if (response != null) {
                             try {
-                                rawData = new String(response.data, HttpHeaderParser.parseCharset(response.headers));
+                                putRawData = new String(response.data, HttpHeaderParser.parseCharset(response.headers));
                             } catch (UnsupportedEncodingException e) {
-                                rawData = new String(response.data);
+                                putRawData = new String(response.data);
                             }
-                            responseCode = String.valueOf(response.statusCode);
+                            putResponseCode = String.valueOf(response.statusCode);
                         }
-                        return Response.success(responseCode, HttpHeaderParser.parseCacheHeaders(response));
+                        return Response.success(putResponseCode, HttpHeaderParser.parseCacheHeaders(response));
                     }
 
                     @Override
                     protected VolleyError parseNetworkError(VolleyError volleyError) {
-                        responseCode = "403";
+                        putResponseCode = "403";
                         Log.e("LOG_VOLLEY", volleyError.toString());
                         return volleyError;
                     }
                 };
+                requestQueue.add(stringRequest);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            requestQueue.add(stringRequest);
-
         }
     };
 
-    private Response.Listener<JSONArray> jsonArrayListenerJobs = new Response.Listener<JSONArray>() {
+    private Response.Listener<String> jsonArrayListenerJobs = new Response.Listener<String>() {
         @Override
-        public void onResponse(JSONArray response) {
-            // TODO: Implement put
+        public void onResponse(String response) {
+            success = true;
+            putResponseCode = response;
+            Log.i("LOG_VOLLEY", response);
         }
     };
 

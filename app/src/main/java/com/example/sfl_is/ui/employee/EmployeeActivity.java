@@ -190,7 +190,6 @@ public class EmployeeActivity extends AppCompatActivity {
         st.setTextColor(Color.BLACK);
         st.setGravity(Gravity.CENTER);
 
-
         ll.addView(id);
         ll.addView(dm);
         ll.addView(wg);
@@ -226,6 +225,7 @@ public class EmployeeActivity extends AppCompatActivity {
                     i.putExtra("parcelID", jobAttributes[1]);
                     i.putExtra("role", role);
                     startActivity(i);
+                    finish();
                 }
             });
 

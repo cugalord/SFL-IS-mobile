@@ -89,7 +89,7 @@ public class LoginDataSource {
                 return new Result.Error(new IOException("Error logging in"));
             }
 
-            Common.apiKey = rawData;
+            Common.apiKey = rawData.split(";")[0];
 
             LoggedInUser user =
                     new LoggedInUser(

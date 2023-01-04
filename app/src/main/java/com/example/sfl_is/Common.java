@@ -30,4 +30,15 @@ public class Common {
         put("7", "Delivery cargo confirmation");
         put("8", "Parcel handover");
     }};
+
+    public static HashMap<String, String> typeNameToID = new HashMap<String, String>() {{
+        put("Order processing", "1");
+        put("Handover", "2");
+        put("Check in", "3");
+        put("Check out", "4");
+        put("Cargo departing confirmation", "5");
+        put("Cargo arrival confirmation", "6");
+        put("Delivery cargo confirmation", "7");
+        put("Parcel handover", "8");
+    }};
 }
